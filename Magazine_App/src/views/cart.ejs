@@ -1,0 +1,9 @@
+<%- include("layout/header") %>
+<h2>Savatchadagi mahsulotlar</h2>
+<% if (cartItems.length === 0) { %>
+  <p>Savatchangiz bo‘sh</p>
+<% } else { %>
+  <% cartItems.forEach(item => { %>
+    <p><%= item.name %> - <%= item.price %> so‘m</p>
+  <% }) %>
+<% } %>

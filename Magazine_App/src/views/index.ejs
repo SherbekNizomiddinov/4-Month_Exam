@@ -1,0 +1,12 @@
+<%- include("layout/header") %>
+<h2>Mahsulotlar</h2>
+<% products.forEach(p => { %>
+  <div>
+    <h3><%= p.name %></h3>
+    <p><%= p.price %> so‘m</p>
+    <form action="/products/add-to-cart" method="POST">
+      <input type="hidden" name="productId" value="<%= p.id %>">
+      <button>🛒 Savatchaga</button>
+    </form>
+  </div>
+<% }) %>
