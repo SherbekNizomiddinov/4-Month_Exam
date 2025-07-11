@@ -20,7 +20,6 @@ app.set('view engine', 'ejs');
 // Foydalanuvchilar ro'yxati (vaqtinchalik xotirada)
 let users = []; // Haqiqiy loyiha uchun bazaga o'tishingiz kerak
 
-// Mahsulotlar bazasi (vaqtinchalik)
 const products = [
     { id: 1, name: "Telefon", price: 2000000, image: '/images/Iphone.jpg' },
     { id: 2, name: "Noutbuk", price: 3500000, image: '/images/laptop.jpg' },
@@ -34,14 +33,16 @@ const products = [
     {id: 10, name: "Konditsioner", price: 5000000, image: '/images/konditsioner.jpg' },
     {id: 11, name: "Printer", price: 1000000, image: '/images/printer.jpg' },
     {id: 12, name: "Router", price: 600000, image: '/images/router.jpg' },
+    {id: 13, name: "USB Flash Drive", price: 200000, image: '/images/usb.jpg' },
+    {id: 14, name: "Monitor", price: 1800000, image: '/images/monitor.jpg' },
+    {id: 16, name: "Sichqoncha", price: 250000, image: '/images/sichqoncha.jpg' },
+    {id: 17, name: "Web Kamera", price: 700000, image: '/images/webcam.jpg' },
 ];
 
-// Bosh sahifa marshruti (ro'yhatdan o'tishga yo'naltirish)
 app.get('/', (req, res) => {
     res.redirect('/register');
 });
 
-// Mahsulotlar ro'yxati (qidiruv bilan)
 app.get('/products', (req, res) => {
     const searchQuery = req.query.search || '';
     const filteredProducts = products.filter(p => 
