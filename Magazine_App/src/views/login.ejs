@@ -1,11 +1,22 @@
 <%- include("layout/header") %>
 <link rel="stylesheet" href="/css/styles.css">
-<h2>Tizimga kirish</h2>
 <div class="login-form">
-  <form action="/login" method="POST">
-    <input type="text" name="username" placeholder="Login" required><br>
-    <input type="password" name="password" placeholder="Parol" required><br>
-    <button>Kirish</button>
-  </form>
-  <a href="/register">Ro‘yxatdan o‘tish</a>
+    <h2>Login</h2>
+    <% if (typeof error !== 'undefined' && error) { %>
+        <p style="color: red;"><%= error %></p>
+    <% } %>
+    <form method="POST" action="/login" onsubmit="return true;" id="loginForm">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Login</button>
+    </form>
+    <a href="/register">Ro'yxatdan o'tish</a>
+    <script>
+        document.getElementById('loginForm').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.querySelector('button[type="submit"]').click();
+            }
+        });
+    </script>
 </div>

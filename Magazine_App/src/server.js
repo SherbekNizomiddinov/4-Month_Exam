@@ -20,6 +20,7 @@ app.set('view engine', 'ejs');
 // Foydalanuvchilar ro'yxati (vaqtinchalik xotirada)
 let users = []; // Haqiqiy loyiha uchun bazaga o'tishingiz kerak
 
+// Mahsulotlar bazasi (vaqtinchalik)
 const products = [
     { id: 1, name: "Telefon", price: 2000000, image: '/images/Iphone.jpg' },
     { id: 2, name: "Noutbuk", price: 3500000, image: '/images/laptop.jpg' },
@@ -27,22 +28,30 @@ const products = [
     { id: 4, name: "Smart Watch", price: 800000, image: '/images/smartwatch.jpg' },
     { id: 5, name: "Kamera", price: 1200000, image: '/images/camera.jpg' },
     { id: 6, name: "Quloqchin", price: 500000, image: '/images/earphones.jpg' },
-    {id: 7, name: "Joystik", price: 2500000, image: '/images/djoystik.jpg' },
-    {id: 8, name: "Televizor", price: 4000000, image: '/images/televisor.jpg' },
-    {id: 9, name: "PlayStation", price: 3000000, image: '/images/playstation.jpg' },
-    {id: 10, name: "Konditsioner", price: 5000000, image: '/images/konditsioner.jpg' },
-    {id: 11, name: "Printer", price: 1000000, image: '/images/printer.jpg' },
-    {id: 12, name: "Router", price: 600000, image: '/images/router.jpg' },
-    {id: 13, name: "USB Flash Drive", price: 200000, image: '/images/usb.jpg' },
-    {id: 14, name: "Monitor", price: 1800000, image: '/images/monitor.jpg' },
-    {id: 16, name: "Sichqoncha", price: 250000, image: '/images/sichqoncha.jpg' },
-    {id: 17, name: "Web Kamera", price: 700000, image: '/images/webcam.jpg' },
+    { id: 7, name: "Joystik", price: 2500000, image: '/images/djoystik.jpg' },
+    { id: 8, name: "Televizor", price: 4000000, image: '/images/televisor.jpg' },
+    { id: 9, name: "PlayStation", price: 3000000, image: '/images/playstation.jpg' },
+    { id: 10, name: "Konditsioner", price: 5000000, image: '/images/konditsioner.jpg' },
+    { id: 11, name: "Printer", price: 1000000, image: '/images/printer.jpg' },
+    { id: 12, name: "Router", price: 600000, image: '/images/router.jpg' },
+    { id: 13, name: "USB Flash Drive", price: 200000, image: '/images/usb.jpg' },
+    { id: 14, name: "Monitor", price: 1800000, image: '/images/monitor.jpg' },
+    { id: 16, name: "Sichqoncha", price: 250000, image: '/images/sichqoncha.jpg' },
+    { id: 17, name: "Web Kamera", price: 700000, image: '/images/webcam.jpg' }
 ];
 
+// Emailni tekshirish funksiyasi
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|org|net|edu)$/i;
+    return emailRegex.test(email);
+}
+
+// Bosh sahifa marshruti (ro'yhatdan o'tishga yo'naltirish)
 app.get('/', (req, res) => {
     res.redirect('/register');
 });
 
+// Mahsulotlar ro'yxati (qidiruv bilan)
 app.get('/products', (req, res) => {
     const searchQuery = req.query.search || '';
     const filteredProducts = products.filter(p => 
@@ -56,36 +65,50 @@ app.get('/products', (req, res) => {
 
 // Login sahifasi (GET)
 app.get('/login', (req, res) => {
-    res.render('login', { cartCount: req.session.cart ? req.session.cart.length : 0 });
+    res.render('login', { error: null, cartCount: req.session.cart ? req.session.cart.length : 0 });
 });
 
 // Login sahifasi (POST)
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    const user = users.find(u => u.username === username && u.password === password);
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.render('login', { error: 'Iltimos, barcha maydonlarni to\'ldiring!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    if (!isValidEmail(email)) {
+        return res.render('login', { error: 'Iltimos, to\'liq va haqiqiy email kiriting (masalan, user@gmail.com)!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    const user = users.find(u => u.email === email && u.password === password);
     if (user) {
-        req.session.user = { username };
+        req.session.user = { email };
         res.redirect('/products');
     } else {
-        res.send('Noto\'g\'ri login yoki parol!');
+        res.render('login', { error: 'Noto\'g\'ri email yoki parol!', cartCount: req.session.cart ? req.session.cart.length : 0 });
     }
 });
 
 // Register sahifasi (GET)
 app.get('/register', (req, res) => {
-    res.render('register', { cartCount: req.session.cart ? req.session.cart.length : 0 });
+    res.render('register', { error: null, cartCount: req.session.cart ? req.session.cart.length : 0 });
 });
 
 // Register sahifasi (POST)
 app.post('/register', (req, res) => {
-    const { username, password } = req.body;
-    if (username && password) {
-        users.push({ username, password });
-        req.session.user = { username };
-        res.redirect('/products');
-    } else {
-        res.send('Iltimos, barcha maydonlarni to\'ldiring!');
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+        return res.render('register', { error: 'Iltimos, barcha maydonlarni to\'ldiring!', cartCount: req.session.cart ? req.session.cart.length : 0 });
     }
+    if (!isValidEmail(email)) {
+        return res.render('register', { error: 'Iltimos, to\'liq va haqiqiy email kiriting (masalan, user@gmail.com)!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    if (username.length < 8) {
+        return res.render('register', { error: 'Kamida 8 tadan ko\'p belgi kiriting!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    if (users.find(u => u.email === email)) {
+        return res.render('register', { error: 'Bu email allaqachon ro\'yxatdan o\'tgan!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    users.push({ username, email, password });
+    req.session.user = { email };
+    res.redirect('/products');
 });
 
 // Logout
@@ -101,7 +124,6 @@ app.get('/logout', (req, res) => {
 // Savatchaga qo‘shish
 app.post('/products/add-to-cart', (req, res) => {
     let productId = req.body.productId;
-    console.log('Qo‘shilayotgan productId:', productId);
     if (!req.session.cart) req.session.cart = [];
     if (!req.session.cart.includes(parseInt(productId))) {
         req.session.cart.push(parseInt(productId));
@@ -112,7 +134,6 @@ app.post('/products/add-to-cart', (req, res) => {
 // Savatcha sahifasi
 app.get('/cart', (req, res) => {
     const cart = req.session.cart || [];
-    console.log('Savatcha ichidagi ma\'lumotlar:', cart);
     const cartItems = [];
     cart.forEach(id => {
         const existingItem = cartItems.find(item => item.id === id);
