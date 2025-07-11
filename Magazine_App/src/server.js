@@ -23,7 +23,17 @@ let users = []; // Haqiqiy loyiha uchun bazaga o'tishingiz kerak
 // Mahsulotlar bazasi (vaqtinchalik)
 const products = [
     { id: 1, name: "Telefon", price: 2000000, image: '/images/Iphone.jpg' },
-    { id: 2, name: "Noutbuk", price: 3500000, image: '/images/laptop.jpg' }
+    { id: 2, name: "Noutbuk", price: 3500000, image: '/images/laptop.jpg' },
+    { id: 3, name: "Planshet", price: 1500000, image: '/images/tablet.jpg' },
+    { id: 4, name: "Smart Watch", price: 800000, image: '/images/smartwatch.jpg' },
+    { id: 5, name: "Kamera", price: 1200000, image: '/images/camera.jpg' },
+    { id: 6, name: "Quloqchin", price: 500000, image: '/images/earphones.jpg' },
+    {id: 7, name: "Joystik", price: 2500000, image: '/images/djoystik.jpg' },
+    {id: 8, name: "Televizor", price: 4000000, image: '/images/televisor.jpg' },
+    {id: 9, name: "PlayStation", price: 3000000, image: '/images/playstation.jpg' },
+    {id: 10, name: "Konditsioner", price: 5000000, image: '/images/konditsioner.jpg' },
+    {id: 11, name: "Printer", price: 1000000, image: '/images/printer.jpg' },
+    {id: 12, name: "Router", price: 600000, image: '/images/router.jpg' },
 ];
 
 // Bosh sahifa marshruti (ro'yhatdan o'tishga yo'naltirish)
