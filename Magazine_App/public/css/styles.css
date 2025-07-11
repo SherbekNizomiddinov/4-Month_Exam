@@ -2,50 +2,50 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
+    background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') no-repeat center center fixed;
+    background-size: cover;
+    background-color: #f4f4f4;
 }
 
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+nav {
     background-color: #333;
-    color: white;
     padding: 10px 20px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
-header a {
+nav a {
     color: white;
     text-decoration: none;
-    margin-right: 20px;
+    padding: 5px 10px;
 }
 
-.search-bar {
-    flex-grow: 1;
-    margin: 0 20px;
+nav a:hover {
+    background-color: #555;
+    border-radius: 3px;
 }
 
-.search-bar input {
-    width: 100%;
-    padding: 5px;
-}
-
-.cart {
-    position: relative;
+nav a[href="/cart"]:hover {
+    transform: scale(1.1);
+    transition: transform 0.3s ease;
 }
 
 .cart-count {
-    background-color: red;
-    color: white;
-    border-radius: 50%;
-    padding: 2px 6px;
-    font-size: 12px;
-    position: absolute;
-    top: -10px;
-    right: -10px;
+    color: rgb(255, 255, 255);
+    font-weight: bold;
 }
 
-.login, .logout {
-    margin-left: 20px;
+hr {
+    border: 0;
+    height: 1px;
+    background: #ccc;
+    margin: 0;
+}
+
+h2 {
+    text-align: center;
+    color: #d1df0f;
 }
 
 .product-list {
@@ -59,15 +59,28 @@ header a {
     border: 1px solid #ddd;
     padding: 10px;
     text-align: center;
+    background-color: white;
+    border-radius: 5px;
 }
 
-.product img {
+.product:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.product-image {
     max-width: 100%;
-    height: auto;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 5px 5px 0 0;
 }
 
 .product h3 {
     margin: 10px 0;
+}
+
+.product p {
+    color: #666;
 }
 
 .product button {
@@ -76,16 +89,127 @@ header a {
     border: none;
     padding: 5px 10px;
     cursor: pointer;
+    border-radius: 3px;
 }
 
 .product button:hover {
     background-color: #218838;
 }
 
-.cart-items {
+.login-form, .register-form {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 300px;
+    margin: 0 auto;
+}
+
+.login-form input, .register-form input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.login-form button, .register-form button {
+    width: 100%;
+    padding: 10px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.login-form button:hover, .register-form button:hover {
+    background-color: #218838;
+}
+
+.login-form a, .register-form a {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.login-form a:hover, .register-form a:hover {
+    text-decoration: underline;
+}
+
+.cart-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
     padding: 20px;
 }
 
-.cart-items h2 {
-    margin-top: 0;
+.cart-item {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+.cart-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-right: 15px;
+}
+
+.cart-details {
+    flex-grow: 1;
+}
+
+.cart-details h3 {
+    margin: 0 0 5px 0;
+    color: #333;
+}
+
+.cart-details p {
+    margin: 0 0 10px 0;
+    color: #666;
+}
+
+.cart-details button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.cart-details button[type="submit"]:first-child {
+    background-color: #dc3545;
+    color: white;
+}
+
+.cart-details button[type="submit"]:first-child:hover {
+    background-color: #c82333;
+}
+
+.cart-details button[type="submit"]:last-child {
+    background-color: #28a745;
+    color: white;
+}
+
+.cart-details button[type="submit"]:last-child:hover {
+    background-color: #218838;
+}
+
+.total {
+    text-align: center;
+    padding: 10px;
+    background-color: white;
+    border-radius: 5px;
+    margin: 20px auto;
+    width: 200px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }

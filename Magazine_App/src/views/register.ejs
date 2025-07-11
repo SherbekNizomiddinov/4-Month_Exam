@@ -1,7 +1,11 @@
+<%- include("layout/header") %>
+<link rel="stylesheet" href="/css/styles.css">
 <h2>Ro‘yxatdan o‘tish</h2>
-<form action="/register" method="POST">
-  <input type="text" name="username" placeholder="Login" required><br>
-  <input type="password" name="password" placeholder="Parol" required><br>
-  <button>Ro‘yxatdan o‘tish</button>
-</form>
-<a href="/login">Kirish</a>
+<div class="register-form">
+  <form action="/register" method="POST">
+    <input type="text" name="username" placeholder="Login" required><br>
+    <input type="password" name="password" placeholder="Parol" required><br>
+    <button>Ro‘yxatdan o‘tish</button>
+  </form>
+  <a href="/login">Kirish</a>
+</div>

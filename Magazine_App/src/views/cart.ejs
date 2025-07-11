@@ -1,9 +1,40 @@
 <%- include("layout/header") %>
-<h2>Savatchadagi mahsulotlar</h2>
+<link rel="stylesheet" href="/css/styles.css">
+<h2>Savatcha</h2>
 <% if (cartItems.length === 0) { %>
-  <p>Savatchangiz bo‘sh</p>
+    <p>Savatcha bo‘sh.</p>
 <% } else { %>
-  <% cartItems.forEach(item => { %>
-    <p><%= item.name %> - <%= item.price %> so‘m</p>
-  <% }) %>
+    <div class="cart-list">
+        <% cartItems.forEach(item => { %>
+            <div class="cart-item">
+                <img src="<%= item.image %>" alt="<%= item.name %>" class="cart-image">
+                <div class="cart-details">
+                    <h3><%= item.name %> (x<%= item.quantity %>)</h3>
+                    <p><%= (item.price * item.quantity).toLocaleString() %> so‘m</p>
+                    <form action="/cart/delete" method="POST" style="display:inline;">
+                        <input type="hidden" name="productId" value="<%= item.id %>">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <form action="/cart/add-more" method="POST" style="display:inline;">
+                        <input type="hidden" name="productId" value="<%= item.id %>">
+                        <button type="submit">Yana qo‘shish</button>
+                    </form>
+                </div>
+            </div>
+        <% }) %>
+    </div>
+    <div class="total" style="display: none;" id="totalAnim">
+        <h3>Jami: <%= total.toLocaleString() %> so‘m</h3>
+    </div>
+    <script>
+        const totalElement = document.getElementById('totalAnim');
+        totalElement.style.display = 'block';
+        setTimeout(() => {
+            totalElement.style.opacity = '0';
+            setTimeout(() => {
+                totalElement.style.opacity = '1';
+                totalElement.style.transition = 'opacity 0.5s ease';
+            }, 50);
+        }, 100);
+    </script>
 <% } %>

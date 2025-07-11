@@ -1,6 +1,6 @@
 <nav>
   <a href="/products">Bosh sahifa</a>
-  <a href="/cart">Savatcha (<%= cartCount || 0 %>)</a>
+  <a href="/cart">Savatcha (<span class="cart-count"<% if (!cartCount) { %> style="display:none;"<% } %>><%= cartCount || 0 %></span>)</a>
   <a href="/logout">Chiqish</a>
 </nav>
 <hr>
