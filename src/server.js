@@ -1,3 +1,4 @@
+const fs = require('fs');
 require('dotenv').config();
 const express = require('express');
 const session = require('express-session');
@@ -18,7 +19,27 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Foydalanuvchilar ro'yxati (vaqtinchalik xotirada)
-let users = []; // Haqiqiy loyiha uchun bazaga o'tishingiz kerak
+let users = [];
+// users.json dan ma'lumotlarni o'qish (db dan)
+const dbPath = path.join(__dirname, 'db');
+const usersFilePath = path.join(dbPath, 'users.json');
+if (!fs.existsSync(dbPath)) {
+    fs.mkdirSync(dbPath);
+}
+if (!fs.existsSync(usersFilePath)) {
+    fs.writeFileSync(usersFilePath, '[]');
+}
+if (fs.existsSync(usersFilePath)) {
+    try {
+        const usersData = fs.readFileSync(usersFilePath);
+        users = JSON.parse(usersData);
+    } catch (err) {
+        console.error('users.json o\'qishda xatolik:', err);
+        users = [];
+    }
+} else {
+    fs.writeFileSync(usersFilePath, '[]');
+}
 
 // Mahsulotlar bazasi (vaqtinchalik)
 const products = [
@@ -39,6 +60,12 @@ const products = [
     { id: 16, name: "Sichqoncha", price: 250000, image: '/images/sichqoncha.jpg' },
     { id: 17, name: "Web Kamera", price: 700000, image: '/images/webcam.jpg' }
 ];
+
+// Mahsulotlar xaridi uchun JSON fayl (db dan)
+const productsFilePath = path.join(dbPath, 'products.json');
+if (!fs.existsSync(productsFilePath)) {
+    fs.writeFileSync(productsFilePath, '[]');
+}
 
 // Emailni tekshirish funksiyasi
 function isValidEmail(email) {
@@ -107,6 +134,14 @@ app.post('/register', (req, res) => {
         return res.render('register', { error: 'Bu email allaqachon ro\'yxatdan o\'tgan!', cartCount: req.session.cart ? req.session.cart.length : 0 });
     }
     users.push({ username, email, password });
+    // db/users.json ga yozish
+    try {
+        fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+        console.log('Yangi user qo\'shildi:', { username, email, password });
+    } catch (err) {
+        console.error('Faylga yozishda xatolik:', err);
+        return res.render('register', { error: 'Faylga yozishda xatolik yuz berdi!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
     req.session.user = { email };
     res.redirect('/products');
 });
@@ -147,6 +182,15 @@ app.get('/cart', (req, res) => {
         }
     });
     const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // db/products.json ga yozish
+    if (cart.length > 0) {
+        try {
+            fs.writeFileSync(productsFilePath, JSON.stringify(cartItems, null, 2));
+        } catch (err) {
+            console.error('Faylga yozishda xatolik:', err);
+            return res.render('cart', { cartItems, total, cartCount: cart.length, error: 'Faylga yozishda xatolik yuz berdi!' });
+        }
+    }
     res.render('cart', { cartItems, total, cartCount: cart.length });
 });
 
