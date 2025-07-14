@@ -11,5 +11,17 @@
     "ejs": "^3.1.9",
     "express": "^4.21.2",
     "express-session": "^1.18.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SherbekNizomiddinov/Magazine_Practise.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SherbekNizomiddinov/Magazine_Practise/issues"
+  },
+  "homepage": "https://github.com/SherbekNizomiddinov/Magazine_Practise#readme",
+  "description": ""
 }
