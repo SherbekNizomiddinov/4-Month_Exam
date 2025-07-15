@@ -1,364 +1,221 @@
-const express = require("express")
-const bodyParser = require("body-parser")
-const session = require("express-session")
+const fs = require('fs');
+require('dotenv').config();
+const express = require('express');
+const session = require('express-session');
+const path = require('path');
+const app = express();
 
-const app = express()
-const PORT = 3000
-
-// Sozlamalar
-app.use(bodyParser.urlencoded({ extended: true }))
-app.use(bodyParser.json())
-app.use(express.static("public"))
-app.set("view engine", "ejs")
-
-// Session sozlamalari
-app.use(
-  session({
-    secret: "online-magazin-secret",
+// Sessiya sozlamalari
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'maxfiysoz',
     resave: false,
-    saveUninitialized: true,
-  }),
-)
+    saveUninitialized: true
+}));
 
-// Mahsulotlar ma'lumotlari
-const products = [
-  {
-    id: 1,
-    name: "iPhone 15 Pro",
-    price: 1200, // 12,000,000 so'm o'rniga 1200$
-    category: "telefon",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Eng yangi iPhone modeli. A17 Pro chip, titanium korpus.",
-    inStock: true,
-    rating: 4.8,
-    reviews: 156,
-  },
-  {
-    id: 2,
-    name: "Samsung Galaxy S24",
-    price: 1050, // 10,500,000 so'm o'rniga 1050$
-    category: "telefon",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Samsung'ning eng yangi flagman telefoni.",
-    inStock: true,
-    rating: 4.7,
-    reviews: 89,
-  },
-  {
-    id: 3,
-    name: "MacBook Air M3",
-    price: 1500, // 15,000,000 so'm o'rniga 1500$
-    category: "laptop",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Apple M3 chip bilan yangi MacBook Air.",
-    inStock: true,
-    rating: 4.9,
-    reviews: 234,
-  },
-  {
-    id: 4,
-    name: "Dell XPS 13",
-    price: 1250, // 12,500,000 so'm o'rniga 1250$
-    category: "laptop",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Yuqori sifatli ultrabook laptop.",
-    inStock: false,
-    rating: 4.6,
-    reviews: 67,
-  },
-  {
-    id: 5,
-    name: "Sony WH-1000XM5",
-    price: 450, // 4,500,000 so'm o'rniga 450$
-    category: "audio",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Eng yaxshi noise-canceling naushniklar.",
-    inStock: true,
-    rating: 4.8,
-    reviews: 445,
-  },
-  {
-    id: 6,
-    name: "AirPods Pro 2",
-    price: 320, // 3,200,000 so'm o'rniga 320$
-    category: "audio",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Apple'ning simsiz naushnik modeli.",
-    inStock: true,
-    rating: 4.7,
-    reviews: 678,
-  },
-  {
-    id: 7,
-    name: "iPad Pro 12.9",
-    price: 1350, // 13,500,000 so'm o'rniga 1350$
-    category: "planshet",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Professional ishlar uchun iPad.",
-    inStock: true,
-    rating: 4.8,
-    reviews: 123,
-  },
-  {
-    id: 8,
-    name: "Samsung Tab S9",
-    price: 850, // 8,500,000 so'm o'rniga 850$
-    category: "planshet",
-    image: "/placeholder.svg?height=300&width=300",
-    description: "Android planshet flagman modeli.",
-    inStock: true,
-    rating: 4.5,
-    reviews: 89,
-  },
-]
-
-// Kategoriyalar
-const categories = [
-  { id: "telefon", name: "Telefonlar", icon: "📱" },
-  { id: "laptop", name: "Laptoplar", icon: "💻" },
-  { id: "audio", name: "Audio", icon: "🎧" },
-  { id: "planshet", name: "Planshetlar", icon: "📱" },
-]
+// Middleware
+app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.urlencoded({ extended: true }));
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
 
 // Foydalanuvchilar ro'yxati (vaqtinchalik xotirada)
-// Blog postlari (vaqtinchalik xotirada)
-// Blog postlari (vaqtinchalik xotirada)
-let posts = [
-  {
-    id: 1,
-    title: "Node.js bilan boshlash",
-    author: "Ali Valiyev",
-    date: "2024-07-10",
-    content:
-      "Node.js - bu JavaScript runtime muhiti bo'lib, server tomonida ilovalar yaratish uchun ishlatiladi. Uning yordamida tez va samarali veb-ilovalar, API'lar va boshqa server dasturlarini qurish mumkin. Node.js asinxron va event-driven modelga asoslangan bo'lib, bu uni yuqori unumdorlikka ega qiladi. Express.js kabi freymvorklar bilan birgalikda ishlatilganda, veb-ilovalar yaratish jarayoni yanada soddalashadi.",
-  },
-  {
-    id: 2,
-    title: "Express.js asoslari",
-    author: "Gulnora Karimova",
-    date: "2024-07-12",
-    content:
-      "Express.js - bu Node.js uchun minimal va moslashuvchan veb-ilovalar freymvorki. U veb-ilovalar va API'lar yaratish uchun kuchli xususiyatlar to'plamini taqdim etadi. Express.js yordamida marshrutlash, middleware'lar va shablon dvigatellarini osongina boshqarish mumkin. Bu freymvork RESTful API'lar va server-rendered ilovalar uchun keng qo'llaniladi.",
-  },
-  {
-    id: 3,
-    title: "EJS shablon dvigateli",
-    author: "Davron Ismoilov",
-    date: "2024-07-14",
-    content:
-      "EJS (Embedded JavaScript) - bu JavaScript yordamida HTML shablonlarini yaratish imkonini beruvchi mashhur shablon dvigateli. Uning yordamida server tomonidan dinamik HTML sahifalarini yaratish mumkin. EJS oddiy sintaksisga ega bo'lib, HTML ichida JavaScript kodini yozishga imkon beradi. Bu, ayniqsa, ma'lumotlar bazasidan olingan ma'lumotlarni veb-sahifalarda ko'rsatishda juda qulay.",
-  },
-]
-
-// Bosh sahifa marshruti (online do'kon mahsulotlari)
-app.get("/", (req, res) => {
-  res.render("index", {
-    products: products, // Online store products
-    cartCount: req.session.cart
-      ? req.session.cart.reduce((sum, id) => sum + (products.find((p) => p.id === id) ? 1 : 0), 0)
-      : 0,
-  })
-})
-
-// Blog postlarini ko'rsatish (Asosiy blog sahifasi)
-app.get("/blog", (req, res) => {
-  res.render("blog-home", {
-    // blog-home.ejs fayli yaratilmagan bo'lsa, uni yaratish kerak
-    posts: posts,
-    cartCount: req.session.cart ? req.session.cart.length : 0,
-  })
-})
-
-// Yangi post yaratish sahifasi (GET)
-app.get("/create", (req, res) => {
-  res.render("create", {
-    cartCount: req.session.cart ? req.session.cart.length : 0,
-  })
-})
-
-// Yangi post yaratish (POST)
-app.post("/create", (req, res) => {
-  const { title, author, content } = req.body
-  const newPost = {
-    id: posts.length > 0 ? Math.max(...posts.map((p) => p.id)) + 1 : 1,
-    title,
-    author,
-    date: new Date().toISOString().slice(0, 10), // YYYY-MM-DD format
-    content,
-  }
-  posts.push(newPost)
-  res.redirect("/admin") // Post yaratilgandan so'ng admin paneliga yo'naltirish
-})
-
-// Admin panel sahifasi (GET)
-app.get("/admin", (req, res) => {
-  res.render("admin", {
-    posts: posts,
-    cartCount: req.session.cart ? req.session.cart.length : 0,
-  })
-})
-
-// Postni o'chirish (DELETE)
-app.delete("/post/:id", (req, res) => {
-  const postId = Number.parseInt(req.params.id)
-  const initialLength = posts.length
-  posts = posts.filter((post) => post.id !== postId)
-  if (posts.length < initialLength) {
-    res.json({ success: true, message: "Post muvaffaqiyatli o'chirildi." })
-  } else {
-    res.status(404).json({ success: false, error: "Post topilmadi." })
-  }
-})
-
-// Yagona blog postini ko'rsatish
-app.get("/post/:id", (req, res) => {
-  const post = posts.find((p) => p.id == req.params.id)
-  if (post) {
-    res.render("post", {
-      post: post,
-      cartCount: req.session.cart ? req.session.cart.length : 0,
-    })
-  } else {
-    res.status(404).render("404", { cartCount: req.session.cart ? req.session.cart.length : 0 })
-  }
-})
-
-// Mahsulotlar sahifasi
-app.get("/products", (req, res) => {
-  let filteredProducts = products
-  const category = req.query.category
-  const search = req.query.search
-
-  if (category) {
-    filteredProducts = products.filter((p) => p.category === category)
-  }
-
-  if (search) {
-    filteredProducts = filteredProducts.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()))
-  }
-
-  res.render("products", {
-    products: filteredProducts,
-    categories,
-    selectedCategory: category,
-    searchQuery: search,
-    cart: req.session.cart || [],
-  })
-})
-
-// Mahsulot batafsil
-app.get("/product/:id", (req, res) => {
-  const product = products.find((p) => p.id == req.params.id)
-  if (product) {
-    const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
-    res.render("product-detail", {
-      product,
-      relatedProducts,
-      cart: req.session.cart || [],
-    })
-  } else {
-    res.status(404).render("404")
-  }
-})
-
-// Savatga qo'shish
-app.post("/add-to-cart", (req, res) => {
-  const productId = Number.parseInt(req.body.productId)
-  const quantity = Number.parseInt(req.body.quantity) || 1
-
-  if (!req.session.cart) {
-    req.session.cart = []
-  }
-
-  const existingItem = req.session.cart.find((item) => item.productId === productId)
-
-  if (existingItem) {
-    existingItem.quantity += quantity
-  } else {
-    const product = products.find((p) => p.id === productId)
-    if (product) {
-      req.session.cart.push({
-        productId: productId,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        quantity: quantity,
-      })
+let users = [];
+// users.json dan ma'lumotlarni o'qish (db dan)
+const dbPath = path.join(__dirname, 'db');
+const usersFilePath = path.join(dbPath, 'users.json');
+if (!fs.existsSync(dbPath)) {
+    fs.mkdirSync(dbPath);
+}
+if (!fs.existsSync(usersFilePath)) {
+    fs.writeFileSync(usersFilePath, '[]');
+}
+if (fs.existsSync(usersFilePath)) {
+    try {
+        const usersData = fs.readFileSync(usersFilePath, 'utf8'); // UTF-8 kodlashini aniq belgilash
+        users = usersData.trim() === '' ? [] : JSON.parse(usersData); // Bo'sh bo'lsa, bo'sh massivga o'tkazish
+    } catch (err) {
+        console.error('users.json o\'qishda xatolik:', err);
+        users = []; // Xatolik bo'lsa, bo'sh massiv bilan davom etish
     }
-  }
+} else {
+    fs.writeFileSync(usersFilePath, '[]');
+}
 
-  res.json({ success: true, cartCount: req.session.cart.length })
-})
+// Mahsulotlar bazasi (vaqtinchalik)
+const products = [
+    { id: 1, name: "Telefon", price: 2000000, image: '/images/Iphone.jpg' },
+    { id: 2, name: "Noutbuk", price: 3500000, image: '/images/laptop.jpg' },
+    { id: 3, name: "Planshet", price: 1500000, image: '/images/tablet.jpg' },
+    { id: 4, name: "Smart Watch", price: 800000, image: '/images/smartwatch.jpg' },
+    { id: 5, name: "Kamera", price: 1200000, image: '/images/camera.jpg' },
+    { id: 6, name: "Quloqchin", price: 500000, image: '/images/earphones.jpg' },
+    { id: 7, name: "Joystik", price: 2500000, image: '/images/djoystik.jpg' },
+    { id: 8, name: "Televizor", price: 4000000, image: '/images/televisor.jpg' },
+    { id: 9, name: "PlayStation", price: 3000000, image: '/images/playstation.jpg' },
+    { id: 10, name: "Konditsioner", price: 5000000, image: '/images/konditsioner.jpg' },
+    { id: 11, name: "Printer", price: 1000000, image: '/images/printer.jpg' },
+    { id: 12, name: "Router", price: 600000, image: '/images/router.jpg' },
+    { id: 13, name: "USB Flash Drive", price: 200000, image: '/images/usb.jpg' },
+    { id: 14, name: "Monitor", price: 1800000, image: '/images/monitor.jpg' },
+    { id: 16, name: "Sichqoncha", price: 250000, image: '/images/sichqoncha.jpg' },
+    { id: 17, name: "Web Kamera", price: 700000, image: '/images/webcam.jpg' }
+];
 
-// Savatdan o'chirish
-app.post("/remove-from-cart", (req, res) => {
-  const productId = Number.parseInt(req.body.productId)
+// Mahsulotlar xaridi uchun JSON fayl (db dan)
+const productsFilePath = path.join(dbPath, 'products.json');
+if (!fs.existsSync(productsFilePath)) {
+    fs.writeFileSync(productsFilePath, '[]');
+}
 
-  if (req.session.cart) {
-    req.session.cart = req.session.cart.filter((item) => item.productId !== productId)
-  }
+// Emailni tekshirish funksiyasi
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.(com|org|net|edu)$/i;
+    return emailRegex.test(email);
+}
 
-  res.json({ success: true })
-})
+// Bosh sahifa marshruti (ro'yhatdan o'tishga yo'naltirish)
+app.get('/', (req, res) => {
+    res.redirect('/register');
+});
 
-// Savat sahifasi
-app.get("/cart", (req, res) => {
-  const cart = req.session.cart || []
-  let total = 0
+// Mahsulotlar ro'yxati (qidiruv bilan)
+app.get('/products', (req, res) => {
+    const searchQuery = req.query.search || '';
+    const filteredProducts = products.filter(p => 
+        p.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    res.render('index', { 
+        products: filteredProducts, 
+        cartCount: req.session.cart ? req.session.cart.reduce((sum, id) => sum + (products.find(p => p.id === id) ? 1 : 0), 0) : 0 
+    });
+});
 
-  cart.forEach((item) => {
-    total += item.price * item.quantity
-  })
+// Login sahifasi (GET)
+app.get('/login', (req, res) => {
+    res.render('login', { error: null, cartCount: req.session.cart ? req.session.cart.length : 0 });
+});
 
-  res.render("cart", { cart, total })
-})
+// Login sahifasi (POST)
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.render('login', { error: 'Iltimos, barcha maydonlarni to\'ldiring!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    if (!isValidEmail(email)) {
+        return res.render('login', { error: 'Iltimos, to\'liq va haqiqiy email kiriting (masalan, user@gmail.com)!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    const user = users.find(u => u.email === email && u.password === password);
+    if (user) {
+        req.session.user = { email };
+        res.redirect('/products');
+    } else {
+        res.render('login', { error: 'Noto\'g\'ri email yoki parol!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+});
 
-// Buyurtma berish
-app.get("/checkout", (req, res) => {
-  const cart = req.session.cart || []
-  let total = 0
+// Register sahifasi (GET)
+app.get('/register', (req, res) => {
+    res.render('register', { error: null, cartCount: req.session.cart ? req.session.cart.length : 0 });
+});
 
-  cart.forEach((item) => {
-    total += item.price * item.quantity
-  })
+// Register sahifasi (POST)
+app.post('/register', (req, res) => {
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+        return res.render('register', { error: 'Iltimos, barcha maydonlarni to\'ldiring!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    if (!isValidEmail(email)) {
+        return res.render('register', { error: 'Iltimos, to\'liq va haqiqiy email kiriting (masalan, user@gmail.com)!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    if (username.length < 8) {
+        return res.render('register', { error: 'Kamida 8 tadan ko\'p belgi kiriting!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    if (users.find(u => u.email === email)) {
+        return res.render('register', { error: 'Bu email allaqachon ro\'yxatdan o\'tgan!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    users.push({ username, email, password });
+    // db/users.json ga yozish
+    try {
+        fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+        console.log('Yangi user qo\'shildi:', { username, email, password });
+    } catch (err) {
+        console.error('Faylga yozishda xatolik:', err);
+        return res.render('register', { error: 'Faylga yozishda xatolik yuz berdi!', cartCount: req.session.cart ? req.session.cart.length : 0 });
+    }
+    req.session.user = { email };
+    res.redirect('/products');
+});
 
-  res.render("checkout", { cart, total })
-})
+// Logout
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.log(err);
+        }
+        res.redirect('/register');
+    });
+});
 
-// Buyurtmani tasdiqlash
-app.post("/place-order", (req, res) => {
-  const { name, phone, address, paymentMethod } = req.body
+// Savatchaga qo‘shish
+app.post('/products/add-to-cart', (req, res) => {
+    let productId = req.body.productId;
+    if (!req.session.cart) req.session.cart = [];
+    if (!req.session.cart.includes(parseInt(productId))) {
+        req.session.cart.push(parseInt(productId));
+    }
+    res.redirect('/products');
+});
 
-  // Bu yerda buyurtmani ma'lumotlar bazasiga saqlash kerak
-  // Hozircha faqat session'ni tozalaymiz
-  req.session.cart = []
+// Savatcha sahifasi
+app.get('/cart', (req, res) => {
+    const cart = req.session.cart || [];
+    const cartItems = [];
+    cart.forEach(id => {
+        const existingItem = cartItems.find(item => item.id === id);
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            const product = products.find(p => p.id === id);
+            if (product) {
+                cartItems.push({ ...product, quantity: 1 });
+            }
+        }
+    });
+    const total = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // db/products.json ga yozish
+    if (cart.length > 0) {
+        try {
+            fs.writeFileSync(productsFilePath, JSON.stringify(cartItems, null, 2));
+        } catch (err) {
+            console.error('Faylga yozishda xatolik:', err);
+            return res.render('cart', { cartItems, total, cartCount: cart.length, error: 'Faylga yozishda xatolik yuz berdi!' });
+        }
+    }
+    res.render('cart', { cartItems, total, cartCount: cart.length });
+});
 
-  res.render("order-success", {
-    orderNumber: Math.floor(Math.random() * 100000),
-    customerName: name,
-  })
-})
+// Mahsulotni savatchadan o‘chirish
+app.post('/cart/delete', (req, res) => {
+    const productId = req.body.productId;
+    if (req.session.cart) {
+        const index = req.session.cart.indexOf(parseInt(productId));
+        if (index !== -1) {
+            req.session.cart.splice(index, 1);
+        }
+    }
+    res.redirect('/cart');
+});
 
-// Biz haqimizda sahifasi (yangi about.ejs dan foydalanish)
-app.get("/about", (req, res) => {
-  res.render("about", {
-    cartCount: req.session.cart ? req.session.cart.length : 0,
-  })
-})
-
-// Aloqa
-app.get("/contact", (req, res) => {
-  res.render("contact")
-})
-
-// 404 sahifasi (yangi 404.ejs dan foydalanish)
-app.use((req, res) => {
-  res.status(404).render("404", {
-    cartCount: req.session.cart ? req.session.cart.length : 0,
-  })
-})
+// Mahsulotni qo‘shish
+app.post('/cart/add-more', (req, res) => {
+    const productId = req.body.productId;
+    if (!req.session.cart) req.session.cart = [];
+    req.session.cart.push(parseInt(productId));
+    res.redirect('/cart');
+});
 
 // Serverni ishga tushirish
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Online Magazin http://localhost:${PORT} da ishlamoqda`)
-})
+    console.log(`Server ${PORT}-portda ishga tushdi`);
+});
